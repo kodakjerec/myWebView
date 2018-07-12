@@ -1,0 +1,39 @@
+<resources>
+
+    <style name="WebViewActionBarTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:actionBarStyle">@style/WebViewActionBar</item>
+        <item name="android:actionBarDivider">@null</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_header_back</item>
+
+        <item name="actionBarStyle">@style/WebViewActionBar</item>
+        <item name="actionBarDivider">@null</item>
+        <item name="homeAsUpIndicator">@drawable/ic_header_back</item>
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="WebViewActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/actionBarBackground</item>
+        <item name="android:titleTextStyle">@style/WebViewActionBarTitleText</item>
+
+        <!-- Support library compatibility -->
+        <item name="background">@color/actionBarBackground</item>
+        <item name="titleTextStyle">@style/WebViewActionBarTitleText</item>
+    </style>
+
+    <!-- ActionBar title text -->
+    <style name="WebViewActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="WebViewPopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- toolbar標題 -->
+    <style name="WebViewAppToolbarTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">19sp</item>
+    </style>
+
+
+</resources>

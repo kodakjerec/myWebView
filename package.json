@@ -1,0 +1,18 @@
+{
+  "name": "InvestmentWebView",
+  "version": "1.0.0",
+  "description": "",
+  "cordova": {
+    "id": "InvestmentWebView",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "",
+  "license": "ISC"
+}

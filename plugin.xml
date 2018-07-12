@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="InvestmentWebView" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>InvestmentWebView</name>
+    <js-module name="InvestmentWebView" src="www/InvestmentWebView.js">
+        <clobbers target="InvestmentWebView" />
+    </js-module>
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="InvestmentWebView">
+                <param name="android-package" value="sc.mobile.investment.webview.InvestmentWebView" />
+            </feature>
+        </config-file>
+        <config-file parent="/*" target="AndroidManifest.xml" />
+        <config-file parent="/manifest/application" target="AndroidManifest.xml">
+            <activity android:name="sc.mobile.investment.webview.WebViewActivity" android:theme="@style/WebViewActionBarTheme" android:screenOrientation="portrait" />
+        </config-file>
+        <source-file src="src/android/InvestmentWebView.java" target-dir="src/sc/mobile/investment/webview" />
+        <source-file src="src/android/WebViewActivity.java" target-dir="src/sc/mobile/investment/webview" />
+        <resource-file src="res/android/layout" target="res/layout" />
+        <resource-file src="res/android/drawable-hdpi/ic_header_back.png" target="res/drawable-hdpi/ic_header_back.png" />
+        <resource-file src="res/android/drawable-mdpi/ic_header_back.png" target="res/drawable-mdpi/ic_header_back.png" />
+        <resource-file src="res/android/drawable-xhdpi/ic_header_back.png" target="res/drawable-xhdpi/ic_header_back.png" />
+        <resource-file src="res/android/drawable-xxhdpi/ic_header_back.png" target="res/drawable-xxhdpi/ic_header_back.png" />
+        <resource-file src="res/android/drawable-xxxhdpi/ic_header_back.png" target="res/drawable-xxxhdpi/ic_header_back.png" />
+        <resource-file src="res/android/values/webview-colors.xml" target="res/values/webview-colors.xml" />
+        <resource-file src="res/android/values/webview-strings.xml" target="res/values/webview-strings.xml" />
+        <resource-file src="res/android/values/webview-style.xml" target="res/values/webview-style.xml" />
+        <resource-file src="res/android/raw" target="res/raw" />
+        <resource-file src="res/android/values-zh-rCN" target="res/values-zh-rCN" />
+        <comment>android版號記得同步更新</comment>
+        <framework src="com.android.support:appcompat-v7:27.1.0" />
+        <framework src="com.android.support:design:27.1.0" />
+    </platform>
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="InvestmentWebView">
+                <param name="ios-package" value="InvestmentWebView" />
+            </feature>
+        </config-file>
+        <source-file src="src/ios/InvestmentWebView.m" />
+        <header-file src="src/ios/InvestmentWebView.h" />
+        <source-file src="src/ios/WebViewController.m" />
+        <resource-file src="src/iOS/WebView.storyboard" target-dir=""/>
+        <resource-file src="res/ios/WebViewImage.xcassets"/>
+        <resource-file src="res/ios/note_html_file/investment_note_1.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_2.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_3.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_4.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_5.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_6.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_7.html"/>
+        <resource-file src="res/ios/note_html_file/investment_note_20.html"/>
+        <resource-file src="res/ios/note_html_file/style.css"/>
+
+    </platform>
+</plugin>
