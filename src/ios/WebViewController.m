@@ -11,7 +11,9 @@
 
 @end
 
-@implementation WebViewController
+@implementation WebViewController {
+    NSMutableArray* languageJson;  // 系統預設中英字串
+}
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
@@ -47,11 +49,11 @@
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error"
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:[self getLanguageText:@"confirmTitle"]
                                                                    message:[error localizedDescription]
                                                             preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Close" style:UIAlertActionStyleDefault
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:[self getLanguageText:@"confirmOK"] style:UIAlertActionStyleDefault
                                                           handler: ^(UIAlertAction *action) {
                                                               [self close];
                                                           }];
@@ -114,7 +116,7 @@
     [self.webView addGestureRecognizer:webViewTapped];
 }
 
-// add Tap event
+// 加入觸控偵測
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
     return YES;
@@ -253,4 +255,35 @@
      */
     return js;
 }
+
+// 9分鐘提醒視窗, 返回效果與showAlertDialog不同
+- (void)remindAlertDialog:(NSString *)message title:(NSString *)title buttonName:(NSString *)buttonName
+{
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:buttonName style:UIAlertActionStyleDefault
+                                                          handler: ^(UIAlertAction *action) {
+                                                              [self.navigationDelegate sendUpdate_remindAlertDialog];
+                                                          }];
+    
+    [alert addAction:defaultAction];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+// 設定語言
+- (void)language:(NSMutableArray*) obj{
+    NSLog(@"WebViewCOntroller language");
+    languageJson = obj;
+}
+// 取得對應的文字
+- (NSString*)getLanguageText:(NSString*)key {
+    if([languageJson valueForKey:key]){
+        return [languageJson valueForKey:key];
+    } else {
+        return key;
+    }
+}
+
 @end

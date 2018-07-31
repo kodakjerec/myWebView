@@ -10,9 +10,8 @@
                 <param name="android-package" value="sc.mobile.investment.webview.InvestmentWebView" />
             </feature>
         </config-file>
-        <config-file parent="/*" target="AndroidManifest.xml" />
         <config-file parent="/manifest/application" target="AndroidManifest.xml">
-            <activity android:name="sc.mobile.investment.webview.WebViewActivity" android:theme="@style/WebViewActionBarTheme" android:screenOrientation="portrait" />
+            <activity android:name="sc.mobile.investment.webview.WebViewActivity" android:theme="@style/WebViewActionBarTheme" android:configChanges="orientation|screenSize" />
         </config-file>
         <source-file src="src/android/InvestmentWebView.java" target-dir="src/sc/mobile/investment/webview" />
         <source-file src="src/android/WebViewActivity.java" target-dir="src/sc/mobile/investment/webview" />
@@ -26,10 +25,10 @@
         <resource-file src="res/android/values/webview-strings.xml" target="res/values/webview-strings.xml" />
         <resource-file src="res/android/values/webview-style.xml" target="res/values/webview-style.xml" />
         <resource-file src="res/android/raw" target="res/raw" />
-        <resource-file src="res/android/values-zh-rCN" target="res/values-zh-rCN" />
         <comment>android版號記得同步更新</comment>
         <framework src="com.android.support:appcompat-v7:27.1.0" />
         <framework src="com.android.support:design:27.1.0" />
+        <framework src="com.android.support.constraint:constraint-layout:1.1.2" />
     </platform>
     <platform name="ios">
         <config-file parent="/*" target="config.xml">

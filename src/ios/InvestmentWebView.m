@@ -38,6 +38,7 @@
     _targetVC.navigationDelegate = self;
 }
 
+// 發送更新給前台UI, 提供給 webView 專用
 - (void)sendUpdate:(NSDictionary *)object
 {
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
@@ -50,5 +51,30 @@
 - (void)close:(CDVInvokedUrlCommand *)command
 {
     [_targetVC close];
+}
+
+- (void)remindAlertDialog:(CDVInvokedUrlCommand *)command
+{
+    self.callbackId_remindAlertDialog=command.callbackId;
+    
+    NSString* echo = [command.arguments objectAtIndex:0];
+    NSString* remindAlertDialog_message = [echo valueForKey:@"message"];
+    NSString* remindAlertDialog_title = [echo valueForKey:@"title"];
+    NSString* remindAlertDialog_buttonName = [echo valueForKey:@"buttonName"];
+    [_targetVC remindAlertDialog:remindAlertDialog_message title:remindAlertDialog_title buttonName:remindAlertDialog_buttonName];
+}
+
+// 發送更新給前台UI, 提供給 延遲登出 使用
+-(void)sendUpdate_remindAlertDialog
+{
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [pluginResult setKeepCallback:[NSNumber numberWithBool:NO]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId_remindAlertDialog];
+}
+
+// 設定語言
+- (void)language:(CDVInvokedUrlCommand *)command{
+    NSLog(@"investmentWebView language");
+    [_targetVC  language:[command.arguments objectAtIndex:0]];
 }
 @end

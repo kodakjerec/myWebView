@@ -27,28 +27,42 @@ public class InvestmentWebView extends CordovaPlugin {
         Log.d("InvestmentWebView", "execute :: " + action + ", args: " + args.toString());
         this.myCallbackContent = callbackContext;
         this.activity = this.cordova.getActivity();
-        if (action.equals(ACTION_WEB_URL)) {
-            // 開啟WebView
-            JSONObject jsonObject = args.getJSONObject(0);
+        JSONObject jsonObject = new JSONObject("{}");
+        if(args.length()>0){
+            jsonObject = args.getJSONObject(0);
+        }
 
-            String url = jsonObject.get("url").toString();
-            String title = jsonObject.get("title").toString();
-            int type = jsonObject.getInt("type");
-            String noteButtonString = jsonObject.get("noteButtonString").toString();
-            
-            Log.d("InvestmentWebView", "jsonObject :: " + jsonObject.toString() + "  url :: " + url);
-            intent = new Intent(this.activity, WebViewActivity.class);
-            intent.putExtra(WebViewActivity.EXTRA_URL, url);
-            intent.putExtra(WebViewActivity.EXTRA_TITLE, title);
-            intent.putExtra(WebViewActivity.EXTRA_TYPE, type);
-            intent.putExtra(WebViewActivity.EXTRA_NOTE_BUTTON_STRING, noteButtonString);
-            this.activity.startActivityForResult(intent, CLICK_RESULT);
-            return true;
-        } else if (action.equals("close")) {
-            // 通知 webView 關閉
-            Intent closeIntent = new Intent("close");
-            this.activity.sendBroadcast(closeIntent);
-            return true;
+        switch (action)
+        {
+            case ACTION_WEB_URL:
+                // 開啟WebView
+                String url = jsonObject.get("url").toString();
+                String title = jsonObject.get("title").toString();
+                int type = jsonObject.getInt("type");
+                String noteButtonString = jsonObject.get("noteButtonString").toString();
+
+                Log.d("InvestmentWebView", "jsonObject :: " + jsonObject.toString() + "  url :: " + url);
+                intent = new Intent(this.activity, WebViewActivity.class);
+                intent.putExtra(WebViewActivity.EXTRA_URL, url);
+                intent.putExtra(WebViewActivity.EXTRA_TITLE, title);
+                intent.putExtra(WebViewActivity.EXTRA_TYPE, type);
+                intent.putExtra(WebViewActivity.EXTRA_NOTE_BUTTON_STRING, noteButtonString);
+                this.activity.startActivityForResult(intent, CLICK_RESULT);
+                return true;
+            case "close":
+                // 通知 webView 關閉
+                WebViewActivity.myWebViewActivity.finish();
+                return true;
+            case "remindAlertDialog":
+                // 開啟WebView內部的alertDialog
+                String remindAlertDialog_message = jsonObject.get("message").toString();
+                String remindAlertDialog_title = jsonObject.get("title").toString();
+                String remindAlertDialog_buttonName = jsonObject.get("buttonName").toString();
+                WebViewActivity.remindAlertDialog( remindAlertDialog_message,remindAlertDialog_title,remindAlertDialog_buttonName,callbackContext );
+                return true;
+            case "language":
+                WebViewActivity.languageJson = args.getJSONObject( 0 );
+                return true;
         }
 
         return false;
@@ -70,8 +84,7 @@ public class InvestmentWebView extends CordovaPlugin {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CLICK_RESULT) {
             try {
-                this.activity.finish();
-                this.finalize();
+                this.cordova.getActivity().finish();
             } catch (Throwable throwable) {
 //                throwable.printStackTrace();
             }

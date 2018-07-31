@@ -1,12 +1,16 @@
 package sc.mobile.investment.webview;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -14,9 +18,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.webkit.SslErrorHandler;
@@ -24,6 +31,7 @@ import android.net.http.SslError;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,24 +41,28 @@ public class WebViewActivity extends AppCompatActivity {
     public static final String EXTRA_URL = "extra_url";
     public static final String EXTRA_TYPE= "extra_type";
     public static final String EXTRA_NOTE_BUTTON_STRING = "extra_note_button_string";
-    public static boolean fromTitleButton = false;   //最後觸摸時間
+    public static boolean fromTitleButton = false;   //判斷返回鍵是軟體或是硬體觸發
     public static JSONObject callbackContent;   // 額外呼叫的activity要跟investmentWebView溝通, 只能透過自定變數
     protected WebView webView;
     protected ProgressBar progressBar;
     protected String url = null;
     private String packageName;
     private int type;
-    private BroadcastReceiver receiver=null;
-    private boolean receiversRegistered = false;
+    private FrameLayout mWebContainer;
+    public static Activity myWebViewActivity;
+    public static JSONObject languageJson; // 系統預設中英字串
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        myWebViewActivity = this;
+
         // 強制設定直立方向, soft
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         super.onCreate(savedInstanceState);
         packageName = getApplicationContext().getPackageName();
         int view_id = getResources().getIdentifier("activity_web_view", "layout", packageName);
         setContentView(view_id);
+        mWebContainer = findViewById( getResources().getIdentifier("frameLayout", "id", packageName));
         String title = "";
         String noteButtonString = "";
         if(getIntent() != null){
@@ -65,7 +77,7 @@ public class WebViewActivity extends AppCompatActivity {
 
         // 設定按鈕
         int button_id = getResources().getIdentifier("button", "id", packageName);
-        Button noteButton = (Button) findViewById(button_id);
+        Button noteButton = findViewById(button_id);
         noteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,10 +93,10 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         int progress_bar_id = getResources().getIdentifier("progress_bar", "id", packageName);
-        progressBar = (ProgressBar) findViewById(progress_bar_id);
+        progressBar = findViewById(progress_bar_id);
 
         int webview_id = getResources().getIdentifier("webview", "id", packageName);
-        webView = (WebView) findViewById(webview_id);
+        webView = findViewById(webview_id);
         // 設定自訂的WebViewClient，讓超連結都能在WebView中開啟，當網頁開始與結束讀取時，顯示或隱藏進度條
         webView.setWebViewClient(new CustomWebViewClient());
         // 設定自訂的WebChromeClient，取得讀取進度
@@ -95,7 +107,10 @@ public class WebViewActivity extends AppCompatActivity {
         webView.getSettings().setDisplayZoomControls(false);
         // 讓圖片調整到適合WebView大小
         webView.getSettings().setUseWideViewPort(true);
-        webView.loadUrl(url);
+        // 避免轉向導致reload url
+        if(savedInstanceState == null) {
+            webView.loadUrl( url );
+        }
         // add touch event
         webView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent event) {
@@ -113,18 +128,20 @@ public class WebViewActivity extends AppCompatActivity {
 
         // add buttonclick event
         webView.addJavascriptInterface(new MyJsToAndroid(),"my");
+    }
 
-        // add broadcast, 接受investmentWebView傳來的消息
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context arg0, Intent intent) {
-                String action = intent.getAction();
-                if (action.equals("close")) {
-                    finish();
-                }
-            }
-        };
-        registerReceivers();
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        // 避免轉向導致reload url
+        super.onSaveInstanceState( outState, outPersistentState );
+        webView.saveState( outState );
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // 避免轉向導致reload url
+        super.onRestoreInstanceState( savedInstanceState );
+        webView.restoreState( savedInstanceState );
     }
 
     @Override
@@ -153,35 +170,78 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceivers();
         webView.clearCache(true);
+        mWebContainer.removeView(webView);
+        webView.removeAllViews();
+        webView.destroy();
+        webView=null;
     }
 
     @Override
     protected void onPause() {
-        unregisterReceivers();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        registerReceivers();
         super.onResume();
     }
 
     @Override
     protected void onRestart() {
-        registerReceivers();
         super.onRestart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceivers();
     }
 
     private class CustomWebChromeClient extends WebChromeClient {
+        private View mCustomView;
+        private WebChromeClient.CustomViewCallback mCustomViewCallback;
+        private int mOriginalOrientation;
+        private int mOriginalSystemUiVisibility;
+
+        @Nullable
+        @Override
+        public Bitmap getDefaultVideoPoster() {
+            if (WebViewActivity.this == null) {
+                return null;
+            }
+            return BitmapFactory.decodeResource(WebViewActivity.this.getApplicationContext().getResources(), 2130837573);
+        }
+
+        @Override
+        public void onHideCustomView()
+        {
+            // 讓影片可以FullScreen
+            ((FrameLayout)WebViewActivity.this.getWindow().getDecorView()).removeView(this.mCustomView);
+            this.mCustomView = null;
+            WebViewActivity.this.getWindow().getDecorView().setSystemUiVisibility(this.mOriginalSystemUiVisibility);
+            WebViewActivity.this.setRequestedOrientation(this.mOriginalOrientation);
+            this.mCustomViewCallback.onCustomViewHidden();
+            this.mCustomViewCallback = null;
+        }
+
+        @Override
+        public void onShowCustomView(View paramView, WebChromeClient.CustomViewCallback paramCustomViewCallback)
+        {
+            // 讓影片可以FullScreen
+            if (this.mCustomView != null)
+            {
+                onHideCustomView();
+                return;
+            }
+            this.mCustomView = paramView;
+            this.mOriginalSystemUiVisibility = WebViewActivity.this.getWindow().getDecorView().getSystemUiVisibility();
+            this.mOriginalOrientation = WebViewActivity.this.getRequestedOrientation();
+            this.mCustomViewCallback = paramCustomViewCallback;
+            ((FrameLayout)WebViewActivity.this.getWindow().getDecorView()).addView(this.mCustomView, new FrameLayout.LayoutParams(-1, -1));
+            WebViewActivity.this.getWindow().getDecorView().setSystemUiVisibility(3846);
+            WebViewActivity.this.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE );
+        }
+
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
             progressBar.setProgress(newProgress);
@@ -216,6 +276,29 @@ public class WebViewActivity extends AppCompatActivity {
             Log.e("Error", "Received SSL error"+ error.toString());
             handler.proceed();
         }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            // Handle the error
+            if(Build.VERSION.SDK_INT<Build.VERSION_CODES.M) {
+                // 覆蓋掉背景網址
+                view.loadUrl( "" );
+                showAlertDialog( getLanguageText("confirmTitle"), description );
+            }
+        }
+
+        @TargetApi(Build.VERSION_CODES.M)
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            // super.onReceivedError( view, request, error );
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+                // 覆蓋掉背景網址
+                view.loadUrl( "" );
+                showAlertDialog( getLanguageText("confirmTitle"), error.getDescription().toString() );
+            }
+        }
+
     }
 
     // action bar
@@ -242,7 +325,7 @@ public class WebViewActivity extends AppCompatActivity {
     private void goToNote() {
         String noteURL;
         switch (type) {
-            
+
             case 2:
                 noteURL = "file:///android_res/raw/investment_note_2.html";
                 break;
@@ -279,23 +362,6 @@ public class WebViewActivity extends AppCompatActivity {
         InvestmentWebView.sendUpdate(obj);
     }
 
-    // 廣播
-    public void registerReceivers() {
-        // Only register if not already registered
-        if (!receiversRegistered) {
-            IntentFilter intentFilter = new IntentFilter("close");
-            registerReceiver(receiver, intentFilter);
-            receiversRegistered = true;
-        }
-    }
-    public void unregisterReceivers() {
-        // Only register if not already registered
-        if (receiversRegistered) {
-            unregisterReceiver(receiver);
-            receiversRegistered = false;
-        }
-    }
-
     // buttonclick
     // JsCallBack
     class MyJsToAndroid extends Object{
@@ -312,7 +378,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
     }
     // JS--
-    public static String addMyClickCallBackJs() {
+    private static String addMyClickCallBackJs() {
         String js = "javascript:";
         js += "function myClick(t){if(null!=t.target.id){var e=t.target;\"button\"==e.tagName.toLowerCase()?my.myClick(e.id):\"button\"==(e=e.parentElement).tagName.toLowerCase()&&my.myClick(e.id)}}document.addEventListener(\"click\",myClick,!0);";
 
@@ -335,4 +401,49 @@ public class WebViewActivity extends AppCompatActivity {
             */
         return js;
     }
+
+    // 自訂提醒視窗, webView發生錯誤 專用
+    private void showAlertDialog(String title, String message){
+        new android.app.AlertDialog.Builder( myWebViewActivity )
+                .setTitle( title )
+                .setMessage( message )
+                .setPositiveButton( getLanguageText("confirmOK"), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                } )
+                .setCancelable( false )
+                .show();
+    }
+
+    //9分鐘提醒視窗, 返回效果與showAlertDialog不同
+    public static void remindAlertDialog(String message, String title, String buttonName, CallbackContext callbackContext){
+        new android.app.AlertDialog.Builder(myWebViewActivity)
+                .setTitle( title )
+                .setMessage( message )
+                .setPositiveButton( buttonName, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        callbackContext.success();
+                    }
+                } )
+                .setOnCancelListener(new AlertDialog.OnCancelListener() {
+                    public void onCancel(DialogInterface dialog)
+                    {
+                        dialog.dismiss();
+                        callbackContext.success();
+                    }
+                })
+                .setCancelable( true )
+                .show();
+    }
+
+    // 取得對應的文字
+    private  String getLanguageText(String key){
+        String result = languageJson.optString( key,key );
+        return result;
+    }
+
 }

@@ -12,10 +12,14 @@
 @interface InvestmentWebView : CDVPlugin
 
 @property (nonatomic, copy) NSString* callbackId;
+@property (nonatomic, copy) NSString* callbackId_remindAlertDialog;
 @property (nonatomic, retain) WebViewController* targetVC;
 - (void)web_url:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
+- (void)remindAlertDialog:(CDVInvokedUrlCommand*)command;
+- (void)sendUpdate_remindAlertDialog;
 - (void)sendUpdate:(NSDictionary *)object;
+- (void)language:(CDVInvokedUrlCommand*)command;
 
 @end
 
@@ -43,5 +47,8 @@
 @property (strong, nonatomic) NSString* theNoteButtonString;
 
 - (IBAction)btnCloseClick:(id)sender;
+- (void)remindAlertDialog:(NSString*)message title:(NSString*)title buttonName:(NSString*)buttonName;
 - (void)close;
+- (void)language:(NSMutableArray*) obj;
+
 @end
