@@ -24,7 +24,8 @@
         <resource-file src="res/android/values/webview-colors.xml" target="res/values/webview-colors.xml" />
         <resource-file src="res/android/values/webview-strings.xml" target="res/values/webview-strings.xml" />
         <resource-file src="res/android/values/webview-style.xml" target="res/values/webview-style.xml" />
-        <resource-file src="res/android/raw" target="res/raw" />
+        <resource-file src="res/raw" target="res/raw" />
+        <resource-file src="res/ca" target="assets/ca" />
         <comment>android版號記得同步更新</comment>
         <framework src="com.android.support:appcompat-v7:27.1.0" />
         <framework src="com.android.support:design:27.1.0" />
@@ -39,17 +40,26 @@
         <source-file src="src/ios/InvestmentWebView.m" />
         <header-file src="src/ios/InvestmentWebView.h" />
         <source-file src="src/ios/WebViewController.m" />
-        <resource-file src="src/iOS/WebView.storyboard" target-dir=""/>
+        <resource-file src="src/ios/WebView.storyboard"/>
         <resource-file src="res/ios/WebViewImage.xcassets"/>
-        <resource-file src="res/ios/note_html_file/investment_note_1.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_2.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_3.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_4.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_5.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_6.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_7.html"/>
-        <resource-file src="res/ios/note_html_file/investment_note_20.html"/>
-        <resource-file src="res/ios/note_html_file/style.css"/>
+        <resource-file src="res/raw/investment_note_1.html"/>
+        <resource-file src="res/raw/investment_note_2.html"/>
+        <resource-file src="res/raw/investment_note_3.html"/>
+        <resource-file src="res/raw/investment_note_4.html"/>
+        <resource-file src="res/raw/investment_note_5.html"/>
+        <resource-file src="res/raw/investment_note_6.html"/>
+        <resource-file src="res/raw/investment_note_7.html"/>
+        <resource-file src="res/raw/investment_note_20.html"/>
+        <resource-file src="res/raw/investment_note_1_en.html"/>
+        <resource-file src="res/raw/investment_note_2_en.html"/>
+        <resource-file src="res/raw/investment_note_3_en.html"/>
+        <resource-file src="res/raw/investment_note_4_en.html"/>
+        <resource-file src="res/raw/investment_note_5_en.html"/>
+        <resource-file src="res/raw/investment_note_6_en.html"/>
+        <resource-file src="res/raw/investment_note_7_en.html"/>
+        <resource-file src="res/raw/investment_note_20_en.html"/>
+        <resource-file src="res/raw/style.css"/>
+        <resource-file src="res/ca"/>
 
     </platform>
 </plugin>

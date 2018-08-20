@@ -13,6 +13,7 @@
 
 @implementation WebViewController {
     NSMutableArray* languageJson;  // 系統預設中英字串
+    NSString* locale; // 地區
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
@@ -47,21 +48,6 @@
     [self.navigationDelegate sendUpdate:@{@"type":@"buttonclick",@"id":id}];
 }
 
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
-{
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:[self getLanguageText:@"confirmTitle"]
-                                                                   message:[error localizedDescription]
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:[self getLanguageText:@"confirmOK"] style:UIAlertActionStyleDefault
-                                                          handler: ^(UIAlertAction *action) {
-                                                              [self close];
-                                                          }];
-    
-    [alert addAction:defaultAction];
-    [self presentViewController:alert animated:YES completion:nil];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -82,7 +68,10 @@
         [self.btnNote setHidden: true];
     }
     
-    NSString *urlString = self.theUrl;
+    // 去除空白和換行符號
+    NSString *urlString = [self.theUrl stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    // 把特殊符號換成%%符號
+    urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     
@@ -108,6 +97,9 @@
     [self.webView addGestureRecognizer:webViewSwipeLeft];
     [self.webView addGestureRecognizer:webViewSwipeRight];
     [self.webView addGestureRecognizer:webViewSwipeDown];
+    
+    //disable Picture in Picture
+    self.webView.allowsPictureInPictureMediaPlayback=false;
     
     // add tap event
     UITapGestureRecognizer *webViewTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAction:)];
@@ -186,32 +178,69 @@
 - (IBAction)btnNoteClick:(id)sender {
     
     NSString* noteFileName = @"";
-    switch ([self.theType integerValue]) {
-        case 2:
-            noteFileName = @"investment_note_2";
+    int intLocale=0;
+    if([locale isEqualToString:@"en"]){
+        intLocale=1;
+    }
+    switch (intLocale) {
+        case 1:
+            switch ([self.theType integerValue]) {
+                case 2:
+                    noteFileName = @"investment_note_2_en";
+                    break;
+                case 3:
+                    noteFileName = @"investment_note_3_en";
+                    break;
+                case 4:
+                    noteFileName = @"investment_note_4_en";
+                    break;
+                case 5:
+                    noteFileName = @"investment_note_5_en";
+                    break;
+                case 6:
+                    noteFileName = @"investment_note_6_en";
+                    break;
+                case 7:
+                    noteFileName = @"investment_note_7_en";
+                    break;
+                case 20:
+                    noteFileName = @"investment_note_20_en";
+                    break;
+                default:  //1
+                    noteFileName = @"investment_note_1_en";
+                    break;
+            }
             break;
-        case 3:
-            noteFileName = @"investment_note_3";
-            break;
-        case 4:
-            noteFileName = @"investment_note_4";
-            break;
-        case 5:
-            noteFileName = @"investment_note_5";
-            break;
-        case 6:
-            noteFileName = @"investment_note_6";
-            break;
-        case 7:
-            noteFileName = @"investment_note_7";
-            break;
-        case 20:
-            noteFileName = @"investment_note_20";
-            break;
-        default:  //1
-            noteFileName = @"investment_note_1";
+        default:
+            switch ([self.theType integerValue]) {
+                case 2:
+                    noteFileName = @"investment_note_2";
+                    break;
+                case 3:
+                    noteFileName = @"investment_note_3";
+                    break;
+                case 4:
+                    noteFileName = @"investment_note_4";
+                    break;
+                case 5:
+                    noteFileName = @"investment_note_5";
+                    break;
+                case 6:
+                    noteFileName = @"investment_note_6";
+                    break;
+                case 7:
+                    noteFileName = @"investment_note_7";
+                    break;
+                case 20:
+                    noteFileName = @"investment_note_20";
+                    break;
+                default:  //1
+                    noteFileName = @"investment_note_1";
+                    break;
+            }
             break;
     }
+    
     NSURL *url = [[NSBundle mainBundle] URLForResource:noteFileName withExtension:@"html"];
     NSURLRequest *urlRequest = [NSURLRequest requestWithURL:url];
     
@@ -276,6 +305,7 @@
 - (void)language:(NSMutableArray*) obj{
     NSLog(@"WebViewCOntroller language");
     languageJson = obj;
+    locale = [obj valueForKey:@"locale"];
 }
 // 取得對應的文字
 - (NSString*)getLanguageText:(NSString*)key {

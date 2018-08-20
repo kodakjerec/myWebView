@@ -1,0 +1,13 @@
+title Enable "InvestmentWebView"
+note left of nativeWebView.js: Vue.js
+nativeWebView.js->Cordova入口: openWebView()
+Cordova入口->InvestmentWebView.js: openWeb()
+Cordova入口->InvestmentWebView.js: language()
+Cordova入口->InvestmentWebView.js: addEventListener()
+InvestmentWebView.js->+InvestmentWebView.java:execute()
+InvestmentWebView.java->+WebViewActivity.java:startActivity()
+WebViewActivity.java->-InvestmentWebView.java:sendUpdate()
+InvestmentWebView.java-->-InvestmentWebView.js:callback
+InvestmentWebView.js->Cordova入口: fireEvent()
+Cordova入口->nativeWebView.js: JS function
+note left of nativeWebView.js: 結果

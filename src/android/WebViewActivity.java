@@ -1,13 +1,11 @@
 package sc.mobile.investment.webview;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -18,8 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -30,10 +26,12 @@ import android.webkit.SslErrorHandler;
 import android.net.http.SslError;
 import android.util.Log;
 import android.view.MotionEvent;
-
 import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.URI;
+import java.net.URL;
 
 public class WebViewActivity extends AppCompatActivity {
 
@@ -51,6 +49,9 @@ public class WebViewActivity extends AppCompatActivity {
     private FrameLayout mWebContainer;
     public static Activity myWebViewActivity;
     public static JSONObject languageJson; // 系統預設中英字串
+    public static String locale= "tw";  // vue.js設定的語系
+    String TAG="https";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,16 @@ public class WebViewActivity extends AppCompatActivity {
         String title = "";
         String noteButtonString = "";
         if(getIntent() != null){
-            url = getIntent().getStringExtra(EXTRA_URL);
+            try {
+                URL tempurl = new URL( getIntent().getStringExtra( EXTRA_URL ) );
+                URI uri = new URI( tempurl.getProtocol(), tempurl.getUserInfo(), tempurl.getHost(), tempurl.getPort(), tempurl.getPath(), tempurl.getQuery(), tempurl.getRef() );
+                tempurl = uri.toURL();
+                url = tempurl.toString();
+                Log.d(TAG,url);
+            }catch (Exception e) {
+                showAlertDialog( getLanguageText( "confirmTitle" ),e.toString() );
+                return;
+            }
             title = getIntent().getStringExtra(EXTRA_TITLE);
             type = getIntent().getIntExtra(EXTRA_TYPE, 1);
             noteButtonString = getIntent().getStringExtra(EXTRA_NOTE_BUTTON_STRING);
@@ -271,34 +281,25 @@ public class WebViewActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
         }
 
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            Log.e("Error", "Received SSL error"+ error.toString());
-            handler.proceed();
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            // Handle the error
-            if(Build.VERSION.SDK_INT<Build.VERSION_CODES.M) {
-                // 覆蓋掉背景網址
-                view.loadUrl( "" );
-                showAlertDialog( getLanguageText("confirmTitle"), description );
-            }
-        }
-
-        @TargetApi(Build.VERSION_CODES.M)
-        @Override
-        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            // super.onReceivedError( view, request, error );
-            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
-                // 覆蓋掉背景網址
-                view.loadUrl( "" );
-                showAlertDialog( getLanguageText("confirmTitle"), error.getDescription().toString() );
-            }
-        }
-
+//        @Override
+//        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+//            Log.d(TAG, "onReceivedSslError "+String.valueOf(error.getPrimaryError()));
+//
+//            new Thread( new Runnable() {
+//                @Override
+//                public void run() {
+//                    // 檢查合理性
+//                    checkSSLCertification obj = new checkSSLCertification();
+//                    boolean isOK = obj.checkSSLError(getApplicationContext(), error);
+//                    if(isOK) {
+//                        handler.proceed();
+//                    } else {
+//                        handler.cancel();
+//                        showAlertDialog( getLanguageText( "confirmTitle" ), "Certification is untrusted." );
+//                    }
+//                }
+//            } ).start();
+//        }
     }
 
     // action bar
@@ -324,33 +325,63 @@ public class WebViewActivity extends AppCompatActivity {
 
     private void goToNote() {
         String noteURL;
-        switch (type) {
-
-            case 2:
-                noteURL = "file:///android_res/raw/investment_note_2.html";
+        switch (locale){
+            case "en":
+                switch (type) {
+                    case 2:
+                        noteURL = "file:///android_res/raw/investment_note_2_en.html";
+                        break;
+                    case 3:
+                        noteURL = "file:///android_res/raw/investment_note_3_en.html";
+                        break;
+                    case 4:
+                        noteURL = "file:///android_res/raw/investment_note_4_en.html";
+                        break;
+                    case 5:
+                        noteURL = "file:///android_res/raw/investment_note_5_en.html";
+                        break;
+                    case 6:
+                        noteURL = "file:///android_res/raw/investment_note_6_en.html";
+                        break;
+                    case 7:
+                        noteURL = "file:///android_res/raw/investment_note_7_en.html";
+                        break;
+                    case 20:
+                        noteURL = "file:///android_res/raw/investment_note_20_en.html";
+                        break;
+                    default:  //1
+                        noteURL = "file:///android_res/raw/investment_note_1_en.html";
+                        break;
+                }
                 break;
-            case 3:
-                noteURL = "file:///android_res/raw/investment_note_3.html";
+            default:
+                switch (type) {
+                    case 2:
+                        noteURL = "file:///android_res/raw/investment_note_2.html";
+                        break;
+                    case 3:
+                        noteURL = "file:///android_res/raw/investment_note_3.html";
+                        break;
+                    case 4:
+                        noteURL = "file:///android_res/raw/investment_note_4.html";
+                        break;
+                    case 5:
+                        noteURL = "file:///android_res/raw/investment_note_5.html";
+                        break;
+                    case 6:
+                        noteURL = "file:///android_res/raw/investment_note_6.html";
+                        break;
+                    case 7:
+                        noteURL = "file:///android_res/raw/investment_note_7.html";
+                        break;
+                    case 20:
+                        noteURL = "file:///android_res/raw/investment_note_20.html";
+                        break;
+                    default:  //1
+                        noteURL = "file:///android_res/raw/investment_note_1.html";
+                        break;
+                }
                 break;
-            case 4:
-                noteURL = "file:///android_res/raw/investment_note_4.html";
-                break;
-            case 5:
-                noteURL = "file:///android_res/raw/investment_note_5.html";
-                break;
-            case 6:
-                noteURL = "file:///android_res/raw/investment_note_6.html";
-                break;
-            case 7:
-                noteURL = "file:///android_res/raw/investment_note_7.html";
-                break;
-            case 20:
-                noteURL = "file:///android_res/raw/investment_note_20.html";
-                break;
-            default:  //1
-                noteURL = "file:///android_res/raw/investment_note_1.html";
-                break;
-
         }
 
         webView.loadUrl(noteURL);
@@ -404,40 +435,57 @@ public class WebViewActivity extends AppCompatActivity {
 
     // 自訂提醒視窗, webView發生錯誤 專用
     private void showAlertDialog(String title, String message){
-        new android.app.AlertDialog.Builder( myWebViewActivity )
-                .setTitle( title )
-                .setMessage( message )
-                .setPositiveButton( getLanguageText("confirmOK"), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                } )
-                .setCancelable( false )
-                .show();
+        // 顯示返回
+        int toolbar_id = getResources().getIdentifier("toolbar", "id", packageName);
+        Toolbar toolbar = (Toolbar) findViewById(toolbar_id);
+        toolbar.setVisibility(View.VISIBLE);
+
+
+        this.runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+                // 跳出提醒dialog
+                AlertDialog.Builder alertDialogBuilde = new android.app.AlertDialog.Builder( myWebViewActivity )
+                        .setTitle( title )
+                        .setMessage( message )
+                        .setPositiveButton( getLanguageText("confirmOK"),new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        }  )
+                        .setCancelable( false );
+
+                AlertDialog alertDialogr = alertDialogBuilde.create();
+                alertDialogr.show();
+            }
+        } );
+
     }
 
     //9分鐘提醒視窗, 返回效果與showAlertDialog不同
     public static void remindAlertDialog(String message, String title, String buttonName, CallbackContext callbackContext){
-        new android.app.AlertDialog.Builder(myWebViewActivity)
-                .setTitle( title )
-                .setMessage( message )
-                .setPositiveButton( buttonName, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        callbackContext.success();
-                    }
-                } )
-                .setOnCancelListener(new AlertDialog.OnCancelListener() {
-                    public void onCancel(DialogInterface dialog)
-                    {
-                        dialog.dismiss();
-                        callbackContext.success();
-                    }
-                })
-                .setCancelable( true )
-                .show();
+        try {
+            new android.app.AlertDialog.Builder( myWebViewActivity )
+                    .setTitle( title )
+                    .setMessage( message )
+                    .setPositiveButton( buttonName, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callbackContext.success();
+                        }
+                    } )
+                    .setOnCancelListener( new AlertDialog.OnCancelListener() {
+                        public void onCancel(DialogInterface dialog) {
+                            dialog.dismiss();
+                            callbackContext.success();
+                        }
+                    } )
+                    .setCancelable( true )
+                    .show();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 取得對應的文字
@@ -445,5 +493,4 @@ public class WebViewActivity extends AppCompatActivity {
         String result = languageJson.optString( key,key );
         return result;
     }
-
 }

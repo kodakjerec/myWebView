@@ -17,16 +17,14 @@ import android.util.Log;
 public class InvestmentWebView extends CordovaPlugin {
     public final String ACTION_WEB_URL = "web_url";
     public static CallbackContext myCallbackContent = null;
+    public static boolean sslPinning;
 
     private final int CLICK_RESULT = 111;
-    private Activity activity = null;
-    private Intent intent = null;
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Log.d("InvestmentWebView", "execute :: " + action + ", args: " + args.toString());
-        this.myCallbackContent = callbackContext;
-        this.activity = this.cordova.getActivity();
+
         JSONObject jsonObject = new JSONObject("{}");
         if(args.length()>0){
             jsonObject = args.getJSONObject(0);
@@ -35,23 +33,30 @@ public class InvestmentWebView extends CordovaPlugin {
         switch (action)
         {
             case ACTION_WEB_URL:
+                this.myCallbackContent = callbackContext;
+
                 // 開啟WebView
                 String url = jsonObject.get("url").toString();
                 String title = jsonObject.get("title").toString();
                 int type = jsonObject.getInt("type");
                 String noteButtonString = jsonObject.get("noteButtonString").toString();
+                sslPinning = jsonObject.getBoolean("sslPinning");
 
                 Log.d("InvestmentWebView", "jsonObject :: " + jsonObject.toString() + "  url :: " + url);
-                intent = new Intent(this.activity, WebViewActivity.class);
+                Intent intent = new Intent(cordova.getActivity(), WebViewActivity.class);
                 intent.putExtra(WebViewActivity.EXTRA_URL, url);
                 intent.putExtra(WebViewActivity.EXTRA_TITLE, title);
                 intent.putExtra(WebViewActivity.EXTRA_TYPE, type);
                 intent.putExtra(WebViewActivity.EXTRA_NOTE_BUTTON_STRING, noteButtonString);
-                this.activity.startActivityForResult(intent, CLICK_RESULT);
+                cordova.getActivity().startActivityForResult(intent, CLICK_RESULT);
                 return true;
             case "close":
                 // 通知 webView 關閉
-                WebViewActivity.myWebViewActivity.finish();
+                try {
+                    WebViewActivity.myWebViewActivity.finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return true;
             case "remindAlertDialog":
                 // 開啟WebView內部的alertDialog
@@ -62,6 +67,7 @@ public class InvestmentWebView extends CordovaPlugin {
                 return true;
             case "language":
                 WebViewActivity.languageJson = args.getJSONObject( 0 );
+                WebViewActivity.locale = args.getJSONObject( 0 ).get("locale").toString();
                 return true;
         }
 
