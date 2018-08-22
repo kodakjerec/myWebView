@@ -1,0 +1,19 @@
+title "GeoFence"
+note left of geoFence.js: Vue.js
+geoFence.js->Cordova入口: initGeofence()
+Cordova入口->geofence.js: initGeofence()
+geofence.js->geofence.java: startJobScheduler()
+geoFence.js->Cordova入口: setLocationUpdateEventListener()
+Cordova入口->geofence.js: setLocationUpdateEventListener()
+位置變更->geofence.java:getAddress(位置)
+geofence.java->-geofence.js:sendUpdate()
+geofence.js->Cordova入口: fireEvent()
+Cordova入口->geoFence.js: JS function
+note left of geoFence.js: 呼叫API
+note left of geoFence.js: Vue.js
+geoFence.js->Cordova入口: setLocalNotificationEventListener()
+Cordova入口->geofence.js: setLocalNotificationEventListener()
+按下通知->geofence.js: sendUpdate_changePage()
+geofence.js->Cordova入口: sendPluginResult()
+Cordova入口->geoFence.js: JS function
+note left of geoFence.js: 切換頁面

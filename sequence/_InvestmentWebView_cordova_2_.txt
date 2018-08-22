@@ -1,0 +1,13 @@
+title "InvestmentWebView_cordova_2"
+網頁->Cordova: buttonclick()
+Cordova->android.CordovaPlugin: exec(buttonclick)
+偵測ID->android.CordovaPlugin: sendUpdate
+android.CordovaPlugin->Cordova: successCallback
+網頁->Cordova: loadstart()
+Cordova->android.CordovaPlugin: exec(loadstart)
+切換url->android.CordovaPlugin: sendUpdate
+android.CordovaPlugin->Cordova: successCallback
+網頁->Cordova: click()
+Cordova->android.CordovaPlugin: exec(click)
+點擊畫面->android.CordovaPlugin: sendUpdate
+android.CordovaPlugin->Cordova: successCallback

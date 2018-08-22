@@ -1,0 +1,17 @@
+title "Ibeacon"
+note left of ibeacon.js: Vue.js
+ibeacon.js->Cordova入口: initIbeacon()
+Cordova入口->ibeacon.js(原生): setIBeaconService()
+ibeacon.js(原生)->IbeaconService: startService()
+偵測到ibeacon->IbeaconService: doWhenScaned()
+IbeaconService->-ibeacon.js(原生):callAPI()
+ibeacon.js(原生)->Cordova入口: fireEvent()
+Cordova入口->ibeacon.js: JS function
+note left of ibeacon.js: 呼叫API
+note left of ibeacon.js: Vue.js
+ibeacon.js->Cordova入口: getIBeaconSignal()
+Cordova入口->ibeacon.js(原生): getIBeaconSignal()
+按下通知->ibeacon.js(原生):broadcastReceiver()
+ibeacon.js(原生)->Cordova入口: sendPluginResult()
+Cordova入口->ibeacon.js: JS function
+note left of ibeacon.js: 結果
