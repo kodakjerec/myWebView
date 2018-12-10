@@ -7,6 +7,8 @@
 
 #import <Cordova/CDV.h>
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 @class WebViewController;
 
 @interface InvestmentWebView : CDVPlugin
@@ -15,6 +17,7 @@
 @property (nonatomic, copy) NSString* callbackId_remindAlertDialog;
 @property (nonatomic, retain) WebViewController* targetVC;
 - (void)web_url:(CDVInvokedUrlCommand*)command;
+- (void)openInSystem:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
 - (void)remindAlertDialog:(CDVInvokedUrlCommand*)command;
 - (void)sendUpdate_remindAlertDialog;
@@ -29,14 +32,15 @@
 
 @end
 
-@interface WebViewController : UIViewController <UIWebViewDelegate, UIGestureRecognizerDelegate, JavaScriptDelegate>
+@interface WebViewController : UIViewController <WKNavigationDelegate, WKUIDelegate, UIGestureRecognizerDelegate, JavaScriptDelegate>
 
-@property (nonatomic, weak) InvestmentWebView* navigationDelegate;
+@property (nonatomic, weak) InvestmentWebView* investmentWebViewDelegate;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *topViewHeight;
-@property (strong, nonatomic) IBOutlet UIWebView* webView;
+@property (strong, nonatomic) IBOutlet WKWebView* webView;
 @property (strong, nonatomic) IBOutlet UIView* topView;
 @property (strong, nonatomic) IBOutlet UIButton* btnClose;
+@property (weak, nonatomic) IBOutlet UIProgressView *progressView;
 @property (weak, nonatomic) IBOutlet UILabel *labelTitle;
 @property (weak, nonatomic) IBOutlet UIButton *btnNote;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *equalHeight;

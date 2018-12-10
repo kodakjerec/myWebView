@@ -14,11 +14,14 @@ function InvestmentWebView() {
 
 InvestmentWebView.prototype = {
     openWeb : function (title, url, type, noteButtonString, sslPinning) {
-    console.log('corodva InvestmentWebView URL: '+url)
-    exec(fireEvent, iab._error, 'InvestmentWebView', 'web_url', [{title: title, url: url, type: type, noteButtonString: noteButtonString, sslPinning:sslPinning}])
+        console.log('corodva InvestmentWebView URL: '+url)
+        exec(fireEvent, iab._error, 'InvestmentWebView', 'web_url', [{title: title, url: url, type: type, noteButtonString: noteButtonString, sslPinning:sslPinning}])
+    },
+    openInSystem : function (url){
+        exec(null, null, 'InvestmentWebView', 'openInSystem',[{url: url}])
     },
     close : function(){
-    exec(null, null, 'InvestmentWebView', 'close',[])
+        exec(null, null, 'InvestmentWebView', 'close',[])
     },
     addEventListener: function(eventname, successCallback, failCallback){
     // 註冊事件

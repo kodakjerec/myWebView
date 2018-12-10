@@ -35,7 +35,17 @@
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
     
-    _targetVC.navigationDelegate = self;
+    _targetVC.investmentWebViewDelegate = self;
+}
+
+- (void)openInSystem:(CDVInvokedUrlCommand*)command
+{
+    NSString* echo = [command.arguments objectAtIndex:0];
+    NSString* url = [echo valueForKey:@"url"];
+    NSURL *urlReal = [NSURL URLWithString:url];
+    
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:CDVPluginHandleOpenURLNotification object:urlReal]];
+    [[UIApplication sharedApplication] openURL:urlReal];
 }
 
 // 發送更新給前台UI, 提供給 webView 專用

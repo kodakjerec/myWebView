@@ -15,7 +15,8 @@
         </config-file>
         <source-file src="src/android/InvestmentWebView.java" target-dir="src/sc/mobile/investment/webview" />
         <source-file src="src/android/WebViewActivity.java" target-dir="src/sc/mobile/investment/webview" />
-        <resource-file src="res/android/layout" target="res/layout" />
+        <resource-file src="res/android/layout/activity_web_view.xml" target="res/layout/activity_web_view.xml" />
+        <resource-file src="res/android/layout/appbar.xml" target="res/layout/appbar.xml" />
         <resource-file src="res/android/drawable-hdpi/ic_header_back.png" target="res/drawable-hdpi/ic_header_back.png" />
         <resource-file src="res/android/drawable-mdpi/ic_header_back.png" target="res/drawable-mdpi/ic_header_back.png" />
         <resource-file src="res/android/drawable-xhdpi/ic_header_back.png" target="res/drawable-xhdpi/ic_header_back.png" />
@@ -25,7 +26,8 @@
         <resource-file src="res/android/values/webview-strings.xml" target="res/values/webview-strings.xml" />
         <resource-file src="res/android/values/webview-style.xml" target="res/values/webview-style.xml" />
         <resource-file src="res/raw" target="res/raw" />
-        <resource-file src="res/ca" target="assets/ca" />
+        <resource-file src="res/ca/ca_mbank_standardchartered_com_tw.cer" target="assets/ca/ca_mbank_standardchartered_com_tw.cer" />
+        <resource-file src="res/ca/ca_priority_standardchartered_com_tw.cer" target="assets/ca/ca_priority_standardchartered_com_tw.cer" />
         <comment>android版號記得同步更新</comment>
         <framework src="com.android.support:appcompat-v7:27.1.0" />
         <framework src="com.android.support:design:27.1.0" />

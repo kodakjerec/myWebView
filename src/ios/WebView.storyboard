@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_5" orientation="portrait">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="ipad9_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <deployment version="4352" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,18 +18,14 @@
                         <viewControllerLayoutGuide type="bottom" id="tpA-3g-3gU"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ZBZ-aT-Df6">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mxN-A5-DNi">
-                                <rect key="frame" x="0.0" y="64" width="414" height="672"/>
-                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </webView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fVc-HJ-QKB">
-                                <rect key="frame" x="0.0" y="20" width="414" height="44"/>
+                                <rect key="frame" x="0.0" y="20" width="768" height="44"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6sE-Ri-Gh1">
-                                        <rect key="frame" x="16" y="10.333333333333332" width="25" height="24.999999999999996"/>
+                                        <rect key="frame" x="16" y="9.5" width="25" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="25" id="3oq-Af-Mth"/>
                                             <constraint firstAttribute="height" constant="25" id="vhd-bT-uJs"/>
@@ -40,7 +36,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tWM-kp-QPC">
-                                        <rect key="frame" x="207.66666666666666" y="22" width="0.0" height="0.0"/>
+                                        <rect key="frame" x="384" y="22" width="0.0" height="0.0"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
@@ -55,8 +51,17 @@
                                     <constraint firstItem="6sE-Ri-Gh1" firstAttribute="leading" secondItem="fVc-HJ-QKB" secondAttribute="leading" constant="16" id="wn4-2p-4Ls"/>
                                 </constraints>
                             </view>
+                            <wkWebView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ac3-vi-IBo">
+                                <rect key="frame" x="0.0" y="64" width="768" height="960"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gmq-BA-NQK">
-                                <rect key="frame" x="361" y="684" width="33" height="32"/>
+                                <rect key="frame" x="715" y="972" width="33" height="32"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
                                 <state key="normal" title="說明">
                                     <color key="titleColor" red="0.6129102098509438" green="0.6129102098509438" blue="0.6129102098509438" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -65,18 +70,18 @@
                                     <action selector="btnNoteClick:" destination="Lhf-CI-hG2" eventType="touchUpInside" id="zL0-H8-d0D"/>
                                 </connections>
                             </button>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="EBe-TF-Uds">
+                                <rect key="frame" x="0.0" y="64" width="768" height="2"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            </progressView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.56862745098039214" blue="0.91764705882352937" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Gmq-BA-NQK" secondAttribute="trailing" constant="20" id="2vg-5m-Ws2"/>
                             <constraint firstItem="tpA-3g-3gU" firstAttribute="top" secondItem="Gmq-BA-NQK" secondAttribute="bottom" constant="20" id="B5X-g9-czv"/>
                             <constraint firstItem="fVc-HJ-QKB" firstAttribute="top" secondItem="hV3-Jt-146" secondAttribute="bottom" id="InF-u7-c7a"/>
-                            <constraint firstItem="mxN-A5-DNi" firstAttribute="top" secondItem="fVc-HJ-QKB" secondAttribute="bottom" id="Lnv-R1-gvF"/>
                             <constraint firstAttribute="trailing" secondItem="fVc-HJ-QKB" secondAttribute="trailing" id="Q6f-AV-Yb2"/>
-                            <constraint firstItem="mxN-A5-DNi" firstAttribute="leading" secondItem="ZBZ-aT-Df6" secondAttribute="leading" id="V5X-d1-aiL"/>
                             <constraint firstItem="fVc-HJ-QKB" firstAttribute="leading" secondItem="ZBZ-aT-Df6" secondAttribute="leading" id="XIC-fl-upq"/>
-                            <constraint firstAttribute="trailing" secondItem="mxN-A5-DNi" secondAttribute="trailing" id="g3M-m9-2eA"/>
-                            <constraint firstItem="tpA-3g-3gU" firstAttribute="top" secondItem="mxN-A5-DNi" secondAttribute="bottom" id="uCe-CI-xZP"/>
                         </constraints>
                     </view>
                     <connections>
@@ -85,9 +90,10 @@
                         <outlet property="btnNote" destination="Gmq-BA-NQK" id="S1h-WY-qbx"/>
                         <outlet property="equalHeight" destination="ife-g2-n8I" id="PjZ-fo-kyt"/>
                         <outlet property="labelTitle" destination="tWM-kp-QPC" id="mNe-ka-8AO"/>
+                        <outlet property="progressView" destination="EBe-TF-Uds" id="uIK-PU-0vL"/>
                         <outlet property="topView" destination="fVc-HJ-QKB" id="0gq-h9-Bjr"/>
                         <outlet property="topViewHeight" destination="ife-g2-n8I" id="Rnl-qX-mwj"/>
-                        <outlet property="webView" destination="mxN-A5-DNi" id="4Rb-CP-Req"/>
+                        <outlet property="webView" destination="Ac3-vi-IBo" id="SLi-Dz-eyp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8pI-oQ-4wu" userLabel="First Responder" sceneMemberID="firstResponder"/>

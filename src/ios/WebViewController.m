@@ -7,78 +7,111 @@
 //
 #import "InvestmentWebView.h"
 
-@interface WebViewController ()
-
-@end
-
 @implementation WebViewController {
     NSMutableArray* languageJson;  // 系統預設中英字串
     NSString* locale; // 地區
 }
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
-{
+#pragma mark - WKNavigationDelegate
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    NSLog(@"decidePolicyForNavigationAction  %@",navigationAction.request.URL.absoluteString);
     // callback send URL
-    NSString *url = request.URL.absoluteString;
-
+    NSString *url = navigationAction.request.URL.absoluteString;
+    
     if(url!=nil) {
-        [self.navigationDelegate sendUpdate:@{@"type":@"loadstart",@"url": url}];
+        [_investmentWebViewDelegate sendUpdate:@{@"type":@"loadstart",@"url": url}];
     }
     
-    return YES;
+    //允许跳转
+    decisionHandler(WKNavigationActionPolicyAllow);
+    //不允许跳转
+    //decisionHandler(WKNavigationActionPolicyCancel);
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
+    NSLog(@"decidePolicyForNavigationResponse  %@",navigationResponse.response.URL.absoluteString);
+    
+    //允许跳转
+    decisionHandler(WKNavigationResponsePolicyAllow);
+    //不允许跳转
+    //decisionHandler(WKNavigationResponsePolicyCancel);
+}
+
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation{
+    // 開啟進度條
+    [_progressView setHidden:NO];
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
     // 塞入JavaScript
-    [self.webView stringByEvaluatingJavaScriptFromString:[self addMyClickCallBackJs]];
+    [webView evaluateJavaScript:[self addMyClickCallBackJs]
+                completionHandler:^(id _Nullable ret, NSError * _Nullable error) {
+                    if (error!=nil)
+                        NSLog(@"addMyClickCallBackJs Error: %@",error);
+                }];
     
-    // 調用原生function
-    JSContext *context = [[JSContext alloc] init];
-    context = [self.webView valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
-    context.exceptionHandler = ^(JSContext *context, JSValue *exceptionValue){
-        context.exception = exceptionValue;
-        NSLog(@"Error: %@",exceptionValue);
-    };
-    context[@"my"] = self;
-
+    // 隱藏進度條
+    [_progressView setHidden:YES];
 }
-- (void)myClick:(NSString *)id {
-//    NSLog(@"call OC success %@", id);
-    [self.navigationDelegate sendUpdate:@{@"type":@"buttonclick",@"id":id}];
+
+- (void)dealloc
+{
+    // 取消監聽 progress bar
+    [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self.labelTitle setText:self.theTitle];
+    [_labelTitle setText:_theTitle];
     // 如果沒有指定title => Hide title
-    if(self.theTitle.length <= 0){
-        [self.topView setHidden:true];
-        self.topViewHeight.constant = 0;
+    if(_theTitle.length <= 0){
+        [_topView setHidden:true];
+        _topViewHeight.constant = 0;
         [UIView animateWithDuration:0.3 animations:^{
             [self.view layoutIfNeeded];
         }];
     }
     
-    if(self.theNoteButtonString != nil && ![self.theNoteButtonString isEqualToString: @""]) {
-        [self.btnNote setTitle:self.theNoteButtonString forState:UIControlStateNormal];
+    if(_theNoteButtonString != nil && ![_theNoteButtonString isEqualToString: @""]) {
+        [_btnNote setTitle:_theNoteButtonString forState:UIControlStateNormal];
     } else {
         // 如果沒有指定說明文字 => Hide btnNote
-        [self.btnNote setHidden: true];
+        [_btnNote setHidden: true];
     }
     
-    // // 去除空白和換行符號
-    // NSString *urlString = [self.theUrl stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    // // 把特殊符號換成%%符號
-    // urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSURL *url = [NSURL URLWithString:self.theUrl];
-    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    // #region JavaScript
+
     
-    [self.webView loadRequest:request];
+    // 加載javaScript, 註冊 handler
+    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+    config.userContentController = [[WKUserContentController alloc] init];
+    
+    //声明 hello message handler 协议
+    [config.userContentController addScriptMessageHandler:self name:@"myClick"];
+    WKWebView *newWebView = [[WKWebView alloc] initWithFrame:_webView.frame configuration:config];
+    
+    // 将WKWebView添加到视图
+    // 插入原本 _webView 的位置
+    [self.view insertSubview:newWebView atIndex:1];
+    // 從UIViewController 的連結中移除舊的 webView
+    [_webView removeFromSuperview];
+    // 為了後續程式流程, _webView 設定為 newWebView
+    _webView = newWebView;
+    // #endregion
+    
+    // #region 设置访问的URL
+    NSURL *url = [NSURL URLWithString:_theUrl];
+    // 根据URL创建请求
+    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    // WKWebView加载请求
+    [_webView loadRequest:request];
+    // #endregion 设置访问的URL
     
     // add webview event
-    self.webView.delegate = self;
+    _webView.navigationDelegate = self;
+    _webView.UIDelegate = self;
     
     // add swipe event
     UISwipeGestureRecognizer *webViewSwipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeAction:)];
@@ -93,19 +126,19 @@
     webViewSwipeLeft.delegate = self;
     webViewSwipeRight.delegate = self;
     webViewSwipeDown.delegate = self;
-    [self.webView addGestureRecognizer:webViewSwipeUp];
-    [self.webView addGestureRecognizer:webViewSwipeLeft];
-    [self.webView addGestureRecognizer:webViewSwipeRight];
-    [self.webView addGestureRecognizer:webViewSwipeDown];
-    
-    //disable Picture in Picture
-    self.webView.allowsPictureInPictureMediaPlayback=false;
+    [_webView addGestureRecognizer:webViewSwipeUp];
+    [_webView addGestureRecognizer:webViewSwipeLeft];
+    [_webView addGestureRecognizer:webViewSwipeRight];
+    [_webView addGestureRecognizer:webViewSwipeDown];
     
     // add tap event
     UITapGestureRecognizer *webViewTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAction:)];
     webViewTapped.numberOfTapsRequired = 1;
     webViewTapped.delegate = self;
-    [self.webView addGestureRecognizer:webViewTapped];
+    [_webView addGestureRecognizer:webViewTapped];
+    
+    // add progress bar
+    [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
 }
 
 // 加入觸控偵測
@@ -133,17 +166,14 @@
             direction = @"error";
             break;
     }
-//    NSLog(@"swiped %@", direction);
     double currentTime = CACurrentMediaTime();
-    [self.navigationDelegate sendUpdate:@{@"type":@"touch",@"lastTouchTime":@(currentTime).stringValue}];
+    [_investmentWebViewDelegate sendUpdate:@{@"type":@"touch",@"lastTouchTime":@(currentTime).stringValue}];
     
 }
 - (void)tapAction:(UITapGestureRecognizer *)sender
 {
-//    CGPoint point = [sender locationInView:self.view];
-//    NSLog(@"touched x:%f y:%f", point.x, point.y);
     double currentTime = CACurrentMediaTime();
-    [self.navigationDelegate sendUpdate:@{@"type":@"touch",@"lastTouchTime":@(currentTime).stringValue}];
+    [_investmentWebViewDelegate sendUpdate:@{@"type":@"touch",@"lastTouchTime":@(currentTime).stringValue}];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -167,10 +197,10 @@
 }
 
 - (IBAction)btnCloseClick:(id)sender {
-//    NSLog(@"%d", self.webView.pageLength);
-    if([self.webView canGoBack]) {
-        [self.webView goBack];
-        [self.btnNote setHidden:false];
+//    NSLog(@"%d", _webView.pageLength);
+    if([_webView canGoBack]) {
+        [_webView goBack];
+        [_btnNote setHidden:false];
     } else {
         [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
@@ -185,7 +215,7 @@
     }
     switch (intLocale) {
         case 1:
-            switch ([self.theType integerValue]) {
+            switch ([_theType integerValue]) {
                 case 2:
                     noteFileName = @"investment_note_2_en";
                     break;
@@ -213,7 +243,7 @@
             }
             break;
         default:
-            switch ([self.theType integerValue]) {
+            switch ([_theType integerValue]) {
                 case 2:
                     noteFileName = @"investment_note_2";
                     break;
@@ -245,8 +275,8 @@
     NSURL *url = [[NSBundle mainBundle] URLForResource:noteFileName withExtension:@"html"];
     NSURLRequest *urlRequest = [NSURLRequest requestWithURL:url];
     
-    [self.webView loadRequest:urlRequest];
-    [self.btnNote setHidden:true];
+    [_webView loadRequest:urlRequest];
+    [_btnNote setHidden:true];
 }
 
 - (void)close
@@ -264,19 +294,19 @@
 // JS--
 - (NSString *)addMyClickCallBackJs {
     NSString *js = @"";
-    js = @"function myClick(t){if(null!=t.target.id){var e=t.target;\"button\"==e.tagName.toLowerCase()?my.myClick(e.id):\"button\"==(e=e.parentElement).tagName.toLowerCase()&&my.myClick(e.id)}}document.addEventListener(\"click\",myClick,!0);";
+    js = @"function myClick(t){if(null!=t.target.id){var e=t.target;\"button\"==e.tagName.toLowerCase()?window.webkit.messageHandlers.myClick.postMessage(e.id):\"button\"==(e=e.parentElement).tagName.toLowerCase()&&window.webkit.messageHandlers.myClick.postMessage(e.id)}}document.addEventListener(\"click\",myClick,!0);";
     
     /*
      function myClick(event){
      if(event.target.id != null){
      var obj = event.target;
      if(obj.tagName.toLowerCase()==\"button\") {
-     my.myClick(obj.id);
+     window.webkit.messageHandlers.myClick.postMessage(obj.id);
      }
      else {
      obj = obj.parentElement;
      if(obj.tagName.toLowerCase()==\"button\") {
-     my.myClick(obj.id);
+     window.webkit.messageHandlers.myClick.postMessage(obj.id);
      }
      }
      }
@@ -284,6 +314,14 @@
      document.addEventListener(\"click\",myClick,true);
      */
     return js;
+}
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message{
+    //    [self.scriptDelegate userContentController:userContentController didReceiveScriptMessage:message];
+    //    if ([message.name isEqualToString:@"myClick"]) {
+    NSLog(@"messge.name %@",message.name);
+    NSLog(@"message.body %@", message.body);
+    
+    [_investmentWebViewDelegate sendUpdate:@{@"type":@"buttonclick",@"id":message.body}];
 }
 
 // 9分鐘提醒視窗, 返回效果與showAlertDialog不同
@@ -295,7 +333,7 @@
     
     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:buttonName style:UIAlertActionStyleDefault
                                                           handler: ^(UIAlertAction *action) {
-                                                              [self.navigationDelegate sendUpdate_remindAlertDialog];
+                                                              [_investmentWebViewDelegate sendUpdate_remindAlertDialog];
                                                           }];
     
     [alert addAction:defaultAction];
@@ -317,6 +355,14 @@
     }
 }
 
+// #region add progress bar
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
+    if ([keyPath  isEqual: @"estimatedProgress"]){
+        [_progressView setProgress:(float)(_webView.estimatedProgress) animated:YES];
+    }
+}
+// #endregion add progress bar
+
 // #region 螢幕旋轉
 - (BOOL)shouldAutorotate{
     return NO;
@@ -330,5 +376,13 @@
     return UIInterfaceOrientationPortrait;
 }
 
-// #endregion
+// #endregion 螢幕旋轉
+
+// #region 私人憑證或http 無法瀏覽問題
+// 上架前一定要mark掉
+//- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler{
+//    NSURLCredential *credential = [[NSURLCredential alloc] initWithTrust:[challenge protectionSpace].serverTrust];
+//    completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+//}
+// #endregion 私人憑證或http 無法瀏覽問題
 @end

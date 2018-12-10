@@ -3,12 +3,14 @@ package sc.mobile.investment.webview;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 
+import org.apache.cordova.LOG;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.apache.cordova.PluginResult;
-import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.Browser;
 import android.util.Log;
 
 /**
@@ -69,6 +71,9 @@ public class InvestmentWebView extends CordovaPlugin {
                 WebViewActivity.languageJson = args.getJSONObject( 0 );
                 WebViewActivity.locale = args.getJSONObject( 0 ).get("locale").toString();
                 return true;
+            case "openInSystem":
+                openExternal(args.getJSONObject( 0 ).get("url").toString());
+                return true;
         }
 
         return false;
@@ -94,6 +99,28 @@ public class InvestmentWebView extends CordovaPlugin {
             } catch (Throwable throwable) {
 //                throwable.printStackTrace();
             }
+        }
+    }
+
+    public String openExternal(String url) {
+        try {
+            Intent intent = null;
+            intent = new Intent(Intent.ACTION_VIEW);
+            // Omitting the MIME type for file: URLs causes "No Activity found to handle Intent".
+            // Adding the MIME type to http: URLs causes them to not be handled by the downloader.
+            Uri uri = Uri.parse(url);
+            if ("file".equals(uri.getScheme())) {
+                intent.setDataAndType(uri, webView.getResourceApi().getMimeType(uri));
+            } else {
+                intent.setData(uri);
+            }
+            intent.putExtra(Browser.EXTRA_APPLICATION_ID, cordova.getActivity().getPackageName());
+            this.cordova.getActivity().startActivity(intent);
+            return "";
+            // not catching FileUriExposedException explicitly because buildtools<24 doesn't know about it
+        } catch (java.lang.RuntimeException e) {
+            LOG.d("InvestmentWebView", "InAppBrowser: Error loading url "+url+":"+ e.toString());
+            return e.toString();
         }
     }
 }
