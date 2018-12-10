@@ -68,11 +68,11 @@
         [self.btnNote setHidden: true];
     }
     
-    // 去除空白和換行符號
-    NSString *urlString = [self.theUrl stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    // 把特殊符號換成%%符號
-    urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSURL *url = [NSURL URLWithString:urlString];
+    // // 去除空白和換行符號
+    // NSString *urlString = [self.theUrl stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    // // 把特殊符號換成%%符號
+    // urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSURL *url = [NSURL URLWithString:self.theUrl];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     
     [self.webView loadRequest:request];
@@ -149,11 +149,12 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES];
-    self.navigationItem.hidesBackButton = YES;
+    [self.navigationItem hidesBackButton];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -316,4 +317,18 @@
     }
 }
 
+// #region 螢幕旋轉
+- (BOOL)shouldAutorotate{
+    return NO;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskPortrait|UIInterfaceOrientationMaskPortraitUpsideDown;
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation{
+    return UIInterfaceOrientationPortrait;
+}
+
+// #endregion
 @end

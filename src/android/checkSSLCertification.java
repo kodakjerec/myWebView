@@ -5,7 +5,7 @@ import android.content.res.AssetManager;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.util.Log;
-import com.scb.mb.tw.R;
+import com.mitake.android.scb.R;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
